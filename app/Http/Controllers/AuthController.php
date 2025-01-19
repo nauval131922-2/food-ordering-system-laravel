@@ -24,6 +24,25 @@ class AuthController extends Controller
             ]);
         }
 
-        return $user->createToken('auth_token')->plainTextToken;
+        unset($user->email_verified_at);
+        unset($user->created_at);
+        unset($user->updated_at);
+        unset($user->deleted_at);
+
+        // hapus token lama
+        $user->tokens()->delete();
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+        $user->token = $token;
+        return response([
+            'data' => $user
+        ]);
+    }
+
+    public function me()
+    {
+        return response([
+            'data' => auth()->user()
+        ]);
     }
 }
