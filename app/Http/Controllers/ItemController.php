@@ -9,6 +9,14 @@ use Illuminate\Support\Facades\Storage;
 
 class ItemController extends Controller
 {
+    public function index()
+    {
+        $items = Item::select('id', 'name', 'price', 'image')->get();
+        return response([
+            'data' => $items
+        ]);
+    }
+
     public function store(Request $request)
     {
         $request->validate([
