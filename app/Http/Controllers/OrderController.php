@@ -10,6 +10,24 @@ use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
+    public function index()
+    {
+        $orders = Order::select('id', 'customer_name', 'table_no', 'order_date', 'order_time', 'status', 'total')->get();
+
+        return response([
+            'data' => $orders
+        ]);
+    }
+
+    public function show($id)
+    {
+        $order = Order::findOrFail($id);
+
+        return response([
+            'data' => $order->loadMissing(['orderDetail:order_id,price,item_id', 'orderDetail.item:id,name', 'waitress:id,name', 'cashier:id,name'])
+        ]);
+    }
+
     public function store(Request $request)
     {
         $request->validate([
@@ -39,11 +57,46 @@ class OrderController extends Controller
                 ]);
             });
 
+            $order->total = $order->sumOrderPrice();
+            $order->save();
+
             DB::commit();
         } catch (\Throwable $th) {
             DB::rollback();
             return response($th);
         }
+
+        return response([
+            'data' => $order
+        ]);
+    }
+
+    public function setAsDone($id)
+    {
+        $order = Order::findOrFail($id);
+
+        if ($order->status != 'ordered') {
+            return response('order already finished', 400);
+        }
+
+        $order->status = 'done';
+        $order->save();
+
+        return response([
+            'data' => $order
+        ]);
+    }
+
+    public function payment($id)
+    {
+        $order = Order::findOrFail($id);
+
+        if ($order->status != 'done') {
+            return response('order not finished yet', 400);
+        }
+
+        $order->status = 'paid';
+        $order->save();
 
         return response([
             'data' => $order
