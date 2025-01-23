@@ -45,4 +45,12 @@ class AuthController extends Controller
             'data' => auth()->user()
         ]);
     }
+
+    public function logout()
+    {
+        auth()->user()->tokens()->delete();
+        return response([
+            'message' => 'Logged out'
+        ]);
+    }
 }
