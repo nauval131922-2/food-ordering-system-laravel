@@ -17,6 +17,14 @@ class ItemController extends Controller
         ]);
     }
 
+    public function show($id)
+    {
+        $item = Item::find($id);
+        return response([
+            'data' => $item
+        ]);
+    }
+
     public function store(Request $request)
     {
         $request->validate([
@@ -45,17 +53,20 @@ class ItemController extends Controller
             'image_file' => 'nullable|mimes:jpg,jpeg,png'
         ]);
 
-        $item = Item::find($id);
-        $item->update($request->all());
-
         if ($request->file('image_file')) {
             $file = $request->file('image_file');
             $fileName = $file->getClientOriginalName();
             $newName = Carbon::now()->timestamp . '_' . $fileName;
 
             Storage::disk('public')->putFileAs('items', $file, $newName);
-            $item->image = $newName;
-            $item->save();
+            $request['image'] = $newName;
         }
+
+        $item = Item::find($id);
+        $item->update($request->all());
+
+        return response([
+            'data' => $item
+        ]);
     }
 }
