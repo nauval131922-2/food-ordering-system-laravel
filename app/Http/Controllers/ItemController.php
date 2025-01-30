@@ -50,7 +50,7 @@ class ItemController extends Controller
         $request->validate([
             'name' => 'required|max:100',
             'price' => 'required|integer',
-            'image_file' => 'nullable|mimes:jpg,jpeg,png'
+            // 'image_file' => 'nullable|mimes:jpg,jpeg,png'
         ]);
 
         if ($request->file('image_file')) {
