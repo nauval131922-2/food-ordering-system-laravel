@@ -12,7 +12,9 @@ class OrderController extends Controller
 {
     public function index()
     {
-        $orders = Order::select('id', 'customer_name', 'table_no', 'order_date', 'order_time', 'status', 'total')->get();
+        $orders = Order::select('id', 'customer_name', 'table_no', 'order_date', 'order_time', 'status', 'total', 'waitress_id' , 'cashier_id')
+            ->with(['waitress:id,name', 'cashier:id,name'])
+            ->get();
 
         return response([
             'data' => $orders
