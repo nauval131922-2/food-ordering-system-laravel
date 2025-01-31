@@ -49,11 +49,12 @@ class OrderController extends Controller
             $order = Order::create($data);
 
             collect($data['items'])->map(function ($item) use ($order) {
-                $foodDrink = Item::where('id', $item)->first();
+                $foodDrink = Item::where('id', $item['id'])->first();
                 OrderDetail::create([
                     'order_id' => $order->id,
-                    'item_id' => $item,
+                    'item_id' => $item['id'],
                     'price' => $foodDrink->price,
+                    'qty' => $item['qty']
                 ]);
             });
 

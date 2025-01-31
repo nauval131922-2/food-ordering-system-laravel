@@ -23,9 +23,17 @@ class Order extends Model
 
     public function sumOrderPrice()
     {
-        $orderDetail = OrderDetail::where('order_id', $this->id)->pluck('price');
+        // $orderDetail = OrderDetail::where('order_id', $this->id)->pluck('price');
 
-        $sum = collect($orderDetail)->sum();
+        // $sum = collect($orderDetail)->sum();
+        // return $sum;
+
+        $orderDetail = OrderDetail::where('order_id', $this->id)->select('price', 'qty')->get();
+        $sum = collect($orderDetail)->map(function ($item) {
+            return $item->price * $item->qty;
+        })->sum();
+
+        return $sum;
     }
 
     /**

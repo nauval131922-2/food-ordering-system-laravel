@@ -14,6 +14,7 @@ class OrderDetail extends Model
         'order_id',
         'item_id',
         'price',
+        'qty'
     ];
 
     /**
