@@ -99,10 +99,35 @@ class OrderController extends Controller
         }
 
         $order->status = 'paid';
+        $order->cashier_id = auth()->user()->id;
         $order->save();
 
         return response([
             'data' => $order->loadMissing(['orderDetail:order_id,price,item_id,qty', 'orderDetail.item:id,name', 'waitress:id,name', 'cashier:id,name'])
+        ]);
+    }
+
+    public function orderReport(Request $request)
+    {
+        $orders = Order::whereMonth('order_date', $request->month)
+            ->select('id', 'customer_name', 'table_no', 'order_date', 'order_time', 'status', 'total', 'waitress_id' , 'cashier_id')
+            ->with(['waitress:id,name', 'cashier:id,name'])
+            ->get();
+
+        $orderCount = $orders->count();
+
+        $maxPayment = $orders->max('total');
+        $minPayment = $orders->min('total');
+
+        $result = [
+            'orders' => $orders,
+            'orderCount' => $orderCount,
+            'maxPayment' => $maxPayment,
+            'minPayment' => $minPayment
+        ];
+
+        return response([
+            'data' => $result
         ]);
     }
 }
